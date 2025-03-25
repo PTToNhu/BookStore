@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign UP</title>
+  </head>
+  <body>
+    <form action="/customer/auth/register-customer" method="POST">
+      <label for="customerid">CusID:</label>
+      <input
+        type="text"
+        id="customerid"
+        name="CustomerID"
+        required
+      /><br /><br />
+      <label for="name">name:</label>
+      <input type="text" id="name" name="Name" required /><br /><br />
+      <label for="sex">sex:</label>
+      <input type="text" id="sex" name="Sex" required /><br /><br />
+      <label for="age">age:</label>
+      <input type="number" id="age" name="Age" required /><br /><br />
+      <label for="username">username:</label>
+      <input type="text" id="username" name="Username" required /><br /><br />
+      <label for="password">Password:</label>
+
+      <input
+        type="password"
+        id="password"
+        name="Password"
+        required
+      /><br /><br />
+      <label for="favoritegenre">favoritegenre:</label>
+      <input
+        type="text"
+        id="favoritegenre"
+        name="FavoriteGenres"
+        required
+      /><br /><br />
+      <button type="submit">Đăng ký</button>
+    </form>
+  </body>
+</html>
