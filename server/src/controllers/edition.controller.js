@@ -5,7 +5,6 @@ const getEditionByBookId = async (req, res) => {
   const bookId = req.params.bookId;
   try {
     // const editionId = req.params.editionId;
-    console.log(bookId);
     const editions = await Edition.find({ BookID: bookId });
     if (!editions)
       return res

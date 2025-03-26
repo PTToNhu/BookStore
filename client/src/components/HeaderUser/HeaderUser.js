@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import logo from "../../asset/logo.png";
-import { useAuth } from "../AuthContext";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 const HeaderUser = () => {
-  const { userId } = useAuth();
-  if (!userId) {
+  const [search, setSearch]=useState("")
+  const navigate=useNavigate()
+  const customerId= jwtDecode(localStorage.getItem("token")).CustomerID
+  if (!customerId) {
     return <p>Vui lòng đăng nhập</p>;
   }
+  const handleSearch = () => {
+    if (!search.trim()) return;
+    navigate(`/customer/${customerId}/book/search?text=${encodeURIComponent(search)}`, { replace: true });
+  };
   return (
     <div
       style={{
@@ -70,6 +77,8 @@ const HeaderUser = () => {
             class="searchbar-input"
             maxlength="128"
             placeholder="Tìm kiếm"
+            onChange={(e)=>{setSearch(e.target.value)}}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           ></input>
           <button type="button" class="btn btn-solid-primary">
             <svg
@@ -84,7 +93,7 @@ const HeaderUser = () => {
             </svg>
           </button>
         </div>
-        <a className="hover-scale" href={userId ? `/user/${userId}/cart` : "#"}>
+        <a className="hover-scale" href={customerId ? `/user/${customerId}/cart` : "#"}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"

@@ -1,28 +1,90 @@
 import React, { useState, useEffect } from "react";
 import bookcover from "../../asset/book.png";
-import "./HomeUser.css";
 import HeaderUser from "../HeaderUser/HeaderUser";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-const HomeUser = () => {
+const BookSearch = () => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
+  const [searchParams] = useSearchParams();
+  const searchText = searchParams.get("text");
+  const [search, setSearch]=useState("")
+  useEffect(()=>{
+    if(searchText){
+        setSearch(searchText)
+    }
+  },[searchText])
+  console.log("search:", search)
   useEffect(() => {
+    if (!search) return;
     const fetchBooks = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/book/get-all");
+        const encodedText = encodeURIComponent(search);
+        const response = await fetch(`http://localhost:3000/api/book/search?text=${encodedText}`);
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu sách!");
         }
         const data = await response.json();
         setBooks(data);
+        data.forEach((book) => fetchPrice(book.BookType, book.BookID));
       } catch (error) {
         setError(error.message);
       }
     };
     fetchBooks();
-  }, []);
+  }, [search]);
+  const fetchPrice = async (BookType, BookID) => {
+    try {
+      if (BookType === "Truyện tranh" || BookType === "Tạp chí") {
+        const response = await fetch(
+          `http://localhost:3000/api/get-all-issue/${BookID}`
+        );
+        if (!response.ok)
+          throw new Error(`Không thể lấy giá cho sách ID ${BookID}`);
+
+        const issue = await response.json();
+        let lastIssue = issue?.at(-1) ?? null;
+
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.BookID === BookID
+              ? {
+                  ...book,
+                  Amount: lastIssue.Amount,
+                  Price: lastIssue.Price,
+                  Volumn: lastIssue.Volumn,
+                }
+              : book
+          )
+        );
+      } else {
+        const response = await fetch(
+          `http://localhost:3000/api/get-all-edition/${BookID}`
+        );
+        if (!response.ok)
+          throw new Error(`Không thể lấy giá cho sách ID ${BookID}`);
+        const edition = await response.json();
+        let lastEdition = edition?.at(-1) ?? null;
+        console.log(lastEdition)
+
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.BookID === BookID
+              ? {
+                  ...book,
+                  Amount: lastEdition.Amount,
+                  Price: lastEdition.Price,
+                  Volumn: lastEdition.Volumn,
+                }
+              : book
+          )
+        );
+      }
+    } catch (error) {
+      console.error(`Lỗi khi fetch giá cho sách ID ${BookID}:`, error);
+    }
+  };
   const [authors, setAuthors] = useState([]);
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -191,22 +253,16 @@ const HomeUser = () => {
         </div>
         {books.map((book) => (
           <a
-            key={book._id}
+            key={book.BookID}
             className="col-md-2 my-2 hover-scale text-decoration-none"
-            href={`/customer/${customerId}/book/${book._id}`}
+            href={`/customer/${customerId}/book/${book.BookID}`}
           >
             <div className="card p-3 shadow-sm">
               <img src={bookcover} alt="Book" className="card-img-top" />
               <div className="card-body p-0" style={{ height: "100px" }}>
-                <p className="fw-bold text-danger mb-0">
-                  {book.LastPublished.Price}đ
-                </p>
+                <p className="fw-bold text-danger mb-0">{book.Price}đ</p>
                 <p className="fw-semibold mb-0">{book.Title}</p>
-                {book.LastPublished.Volumn && (
-                  <p className="fw-semibold mb-0">
-                    Tập {book.LastPublished.Volumn}
-                  </p>
-                )}
+                <p className="fw-semibold mb-0">Tập {book.Volumn}</p>
               </div>
             </div>
           </a>
@@ -340,4 +396,4 @@ const HomeUser = () => {
   );
 };
 
-export default HomeUser;
+export default BookSearch;

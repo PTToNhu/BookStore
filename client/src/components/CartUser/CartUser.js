@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HeaderUser from "../HeaderUser/HeaderUser";
-import { useParams } from "react-router-dom";
-import { useAuth } from "../AuthContext";
+// import { useParams } from "react-router-dom";
+// import { useAuth } from "../AuthContext";
 import bookcover from "../../asset/bookcover.png";
 
 const CartUser = () => {

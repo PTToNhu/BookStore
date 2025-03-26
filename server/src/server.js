@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 db.connect();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 30001;
 route(app);
 
 app.listen(port, () => {

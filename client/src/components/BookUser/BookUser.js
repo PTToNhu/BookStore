@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HeaderUser from "../HeaderUser/HeaderUser";
 import bookcover from "../../asset/bookcover.png";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const BookUser = () => {
   const likeFDB = false;
-  const bookId = useParams().bookId; //used to search book where id=bookId
-  console.log(bookId);
-  const { userId } = useAuth();
+  const bookId = useParams().bookId;
+  const decoded = jwtDecode(localStorage.getItem("token"));
+  const customerId = decoded.CustomerID;
   const [numOfBooks, setNumOfBooks] = useState(1);
   const [liked, setLiked] = useState(likeFDB);
   const [showNotification, setShowNotification] = useState(false);
@@ -33,20 +33,29 @@ const BookUser = () => {
       setShowNotification(false);
     }, 3000);
   };
+  const [book, setBook] = useState(null);
+  const [error, setError] = useState("");
 
-  const book = {
-    ID: "1",
-    Description:
-      "Khám phá những xu hướng công nghệ mới nhất và các sản phẩm điện thoại di động đột phá trên thị trường.",
-    Title: "Tạp Chí Thế Giới Di Động",
-    BookType: "Tạp chí",
-    Price: "99.000đ",
-    Volume: "14",
-    Author: "Nguyễn Văn A",
-    PageNumber: "912",
-  };
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/book/${bookId}`
+        );
+        if (!response.ok) {
+          throw new Error("Không thể lấy dữ liệu sách!");
+        }
+        const data = await response.json();
+        setBook(data);
+        console.log(data)
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+    fetchBook();
+  }, [bookId]);
   return (
-    <div style={{ backgroundColor: "#dddddd", height:"100vh" }}>
+    <div style={{ backgroundColor: "#dddddd", height: "100vh" }}>
       <HeaderUser />
       {showNotification && (
         <div
@@ -69,7 +78,7 @@ const BookUser = () => {
             Thêm vào giỏ hàng thành công!
           </p>
           <a
-            href={`/user/${userId}/cart`}
+            href={`/user/${customerId}/cart`}
             className="text-decoration-none d-block text-center mt-2 btn btn-danger"
           >
             Xem giỏ hàng và thanh toán
@@ -94,26 +103,29 @@ const BookUser = () => {
               </div>
               <div>
                 <p>
-                  <strong>Tác giả:</strong> {book.Author}
+                  <strong>Tác giả:</strong>{" "}
+                  {book.Authors?.map(
+                    (author) => author.LastName + " " + author.FirstName
+                  ).join(", ") || "Không có thông tin tác giả"}
                 </p>
                 <p>
-                  <strong>Giá:</strong> {book.Price}
+                  <strong>Giá:</strong> {book.LastPublished.Price}đ
                 </p>
                 <p>
-                  <strong>Thể loại:</strong> {book.Title}
+                  <strong>Thể loại:</strong> {book.BookType}
                 </p>
                 <p>
                   <strong>Mô tả:</strong> {book.Description}
                 </p>
-                {book.Volume ? (
+                {book.LastPublished.Volume ? (
                   <p>
-                    <strong>Tập:</strong> {book.Volume}
+                    <strong>Tập:</strong> {book.LastPublished.Volume}
                   </p>
                 ) : (
                   <div className="none"></div>
                 )}
                 <p>
-                  <strong>Số trang:</strong> {book.PageNumber}
+                  <strong>Số trang:</strong> {book.LastPublished.Pages}
                 </p>
               </div>
               <div>
@@ -180,7 +192,7 @@ const BookUser = () => {
                   </button>
                 </div>
                 <p className="fw-bold">Tạm tính</p>
-                <p className="fw-bold">99.000đ</p>
+                <p className="fw-bold">{book.LastPublished.Price*numOfBooks}đ</p>
                 <button
                   className="btn btn-danger"
                   style={{ marginRight: "8px" }}

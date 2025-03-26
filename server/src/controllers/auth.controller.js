@@ -11,13 +11,14 @@ const loginCustomer = async (req, res) => {
     // Tìm customer
     const customer = await Customer.findOne({ Username });
     if (!customer) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return res.status(400).json({ error: "Invalid email or password1" });
     }
 
     // So sánh password
     const isMatch = await bcrypt.compare(Password, customer.Password);
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid email or password" });
+    // if (!isMatch) {
+    if(Password!=customer.Password){
+      return res.status(400).json({ error: "Invalid email or password2" });
     }
 
     // Tạo token JWT

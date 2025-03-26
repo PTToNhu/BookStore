@@ -2,47 +2,60 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import logo from "../../asset/logo.png";
-import { useAuth } from "../AuthContext";
-
+import {jwtDecode} from "jwt-decode";
 
 const Login = () => {
-  const { setUserId } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("CUSTOMER");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!username || !password) {
       setError("Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
       return;
     }
+    try {
+      const response = await fetch(
+        "http://localhost:3000/customer/auth/login-customer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Username: username,
+            Password: password,
+          }),
+        }
+      );
 
-    const fakeUsers = [
-      { id: 1, username: "admin", password: "123456", role: "admin" },
-      { id: 2, username: "user", password: "password", role: "user" },
-    ];
+      const data = await response.json();
 
-    const user = fakeUsers.find(
-      (u) =>
-        u.username === username && u.password === password && u.role === role
-    );
-
-    if (user) {
-      setUserId(user.id);
-      setError("");
-      console.log("Đăng nhập với", { username, password, role });
-
-      if (role === "admin") {
-        navigate(`/admin/${user.id}`);
-      } else {
-        navigate(`/user/${user.id}`);
+      if (!response.ok) {
+        throw new Error(data.error || "Đăng nhập thất bại");
       }
-    } else {
-      setError("Tài khoản, mật khẩu hoặc vai trò không đúng.");
+
+      localStorage.setItem("token", data.token);
+      try {
+        const decoded = jwtDecode(data.token);
+        setError("");
+        console.log("Đăng nhập thành công", { username });
+
+        if (decoded.Role === "STAFF") {
+          navigate(`/STAFF/${decoded.CustomerID}`);
+        } else {
+          navigate(`/CUSTOMER/${decoded.CustomerID}`);
+        }
+      } catch (error) {
+        console.error("Lỗi giải mã token:", error);
+        return;
+      }
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -81,28 +94,28 @@ const Login = () => {
           <div className="mb-1">
             <p className="fw-bold">Chọn vai trò:</p>
             <div className="d-flex justify-content-between">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="role"
-                value="user"
-                checked={role === "user"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <label className="form-check-label">Người dùng</label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="role"
-                value="admin"
-                checked={role === "admin"}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <label className="form-check-label">Người quản trị</label>
-            </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="role"
+                  value="user"
+                  checked={role === "user"}
+                  onChange={(e) => setRole(e.target.value)}
+                />
+                <label className="form-check-label">Người dùng</label>
+              </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="role"
+                  value="STAFF"
+                  checked={role === "STAFF"}
+                  onChange={(e) => setRole(e.target.value)}
+                />
+                <label className="form-check-label">Người quản trị</label>
+              </div>
             </div>
           </div>
 

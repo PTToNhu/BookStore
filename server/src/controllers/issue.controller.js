@@ -4,7 +4,6 @@ const Issue = db.Issue;
 const getIssueByBookId = async (req, res) => {
   const bookId = req.params.bookId;
   try {
-    console.log(bookId);
     const issues = await Issue.find({ BookID: bookId });
     if (!issues)
       return res.status(404).send("The issue with the given ID was not found.");
