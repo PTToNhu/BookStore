@@ -10,6 +10,7 @@ const Issue = require("./issue.model");
 const Rating = require("./rating.model");
 const Order = require("./order.model");
 const Shipment = require("./shipment.model");
+const Author = require("./author.model");
 module.exports = {
   Book,
   Customer,
@@ -23,4 +24,5 @@ module.exports = {
   Rating,
   Order,
   Shipment,
+  Author,
 };

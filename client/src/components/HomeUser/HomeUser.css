@@ -1,0 +1,13 @@
+.logo-img {
+    width: 40px;
+    height: 40px;
+}
+
+.hover-scale {
+    transition: transform 0.3s ease-in-out;
+    will-change: transform; /* Tối ưu hiệu suất */
+}
+
+.hover-scale:hover {
+    transform: scale(1.04);
+}

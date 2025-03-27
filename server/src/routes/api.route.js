@@ -5,11 +5,16 @@ const bookController = controllers.bookController;
 const editionController = controllers.editionController;
 const issueController = controllers.issueController;
 const orderController = controllers.orderController;
+const authorController = controllers.authorController;
+const bookGenreController=controllers.bookGenreController;
 const route = Router();
 //* BOOK
 // GET Book
-route.get("/book/get-all", bookController.getAllBooks);
-route.get("/book/:bookId", bookController.getBookById);
+route.get("/book/get-all", bookController.getBooksWithAuthorsAndLatestPublished);
+route.get("/book/search", bookController.bookSearch)
+route.get("/book/filter",bookController.getBooksByFilters)
+route.get("/book/:bookId", bookController.getBooksWithAuthorsAndLatestPublishedByBookID);
+
 // POST Book
 // route.post("/book/create", bookController.createBook);
 // PUT Book
@@ -33,4 +38,7 @@ route.get(
   orderController.getAllOrderByCustomerId
 );
 route.get("/order/get-all/:staffId", orderController.getAllOrderByStaffId);
+route.get("/author/get-all", authorController.getAllAuthors);
+route.get("/bookgenre/get-all", bookGenreController.getAllBookGenre);
+
 module.exports = route;
