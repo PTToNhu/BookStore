@@ -6,10 +6,16 @@ const BookSchema = Schema({
   Description: { type: String },
   Title: { type: String },
   VolumnNumber: { type: Number },
-  PubID: { type: String, required: true, ref: "Publisher" },
+  PubID: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Publisher",
+  },
   BookType: { type: String },
   SeriesID: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Series",
   },
 });
 

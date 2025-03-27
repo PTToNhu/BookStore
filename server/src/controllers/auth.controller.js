@@ -3,11 +3,11 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const Customer = db.Customer;
-
+const CustomerGenre = db.CustomerGenre;
 const loginCustomer = async (req, res) => {
   try {
     const { Username, Password } = req.body;
-    console.log(req.body);
+    console.log(Username, Password);
     // Tìm customer
     const customer = await Customer.findOne({ Username });
     if (!customer) {
@@ -57,12 +57,12 @@ const registerCustomer = async (req, res) => {
 
     await newCustomer.save();
 
-    if (FavoriteGenres && FavoriteGenres.length > 0) {
-      const genresToSave = FavoriteGenres.map((genre) => ({
+    if (FavoriteGenres) {
+      FG = FavoriteGenres.split(",").map((genre) => ({
         CustomerID: newCustomer.CustomerID,
-        Favorite_Genre: genre,
+        Favorite_Genre: genre.trim(),
       }));
-      await CustomerGenre.insertMany(genresToSave);
+      await CustomerGenre.insertMany(FG);
     }
 
     res.status(201).json({ message: "Customer registered successfully!" });

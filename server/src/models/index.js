@@ -3,6 +3,7 @@ const BookAward = require("./bookAward.model");
 const BookGenre = require("./bookGenre.model");
 const Is_written = require("./isWritten.model");
 const Customer = require("./customer.model");
+const CustomerGenre = require("./customerGenre.model");
 const Staff = require("./staff.model");
 const Edition = require("./edition.model");
 const Issue = require("./issue.model");
@@ -12,6 +13,7 @@ const Shipment = require("./shipment.model");
 module.exports = {
   Book,
   Customer,
+  CustomerGenre,
   Staff,
   Edition,
   Issue,

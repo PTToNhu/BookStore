@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const ContainEdition = Schema({
   OrderID: { type: String },
-  ISBN: { type: String, ref: "Edition" },
+  ISBN: { type: mongoose.Schema.Types.ObjectId, ref: "Edition" },
   Quantity: { type: Number },
 });
 

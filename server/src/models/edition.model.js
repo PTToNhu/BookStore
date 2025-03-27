@@ -11,7 +11,7 @@ const EditionSchema = Schema({
   Format: { type: String },
   Price: { type: Number },
   Amount: { type: Number, default: 0 },
-  BookID: { type: String, required: true },
+  BookID: { type: mongoose.Schema.Types.ObjectId, required: true },
 });
 
 const Edition = mongoose.model("Edition", EditionSchema, "edition");

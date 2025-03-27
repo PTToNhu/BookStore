@@ -13,7 +13,7 @@ const IssueSchema = Schema({
   Volumn: { type: Number },
   Price: { type: Number },
   Amount: { type: Number, default: 0 },
-  BookID: { type: String, required: true },
+  BookID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Book" },
 });
 
 const Issue = mongoose.model("Issue", IssueSchema, "issue");

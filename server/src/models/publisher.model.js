@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const PublisherSchema = new Schema({
-  PublisherID: { type: String, required: true, unique: true },
+  PubID: { type: String, required: true, unique: true },
   PublishingHouse: { type: String, required: true },
   City: { type: String },
   YearEstablished: { type: Number },
