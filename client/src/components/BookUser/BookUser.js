@@ -26,12 +26,30 @@ const BookUser = () => {
   const handleSetLiked = () => {
     setLiked(!liked);
   };
-
-  const handleAddToCart = () => {
-    setShowNotification(true);
-    setTimeout(() => {
-      setShowNotification(false);
-    }, 3000);
+  const handleAddToCart = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/cart/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerId: customerId,
+          bookId: bookId,
+          numOfBooks: numOfBooks,
+        }),
+      });
+      console.log("response", response)
+      if (!response.ok) {
+        throw new Error("Không thể cập nhật giỏ hàng!");
+      }
+      setShowNotification(true);
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 3000);
+    } catch (error) {
+      console.log("Lỗi khi thêm sản phẩm vào giỏ hàng", error)
+    }
   };
   const [book, setBook] = useState(null);
   const [error, setError] = useState("");
@@ -47,15 +65,17 @@ const BookUser = () => {
         }
         const data = await response.json();
         setBook(data);
-        console.log(data)
+        console.log(data);
       } catch (error) {
         setError(error.message);
       }
     };
     fetchBook();
-  }, [bookId]);
+  }, [customerId]);
   return (
-    <div style={{ backgroundColor: "#dddddd", height: "100vh" }}>
+    <div
+      style={{ backgroundColor: "#dddddd", height: "100vh", maxHeight: "100%" }}
+    >
       <HeaderUser />
       {showNotification && (
         <div
@@ -78,7 +98,7 @@ const BookUser = () => {
             Thêm vào giỏ hàng thành công!
           </p>
           <a
-            href={`/user/${customerId}/cart`}
+            href={`/customer/${customerId}/cart`}
             className="text-decoration-none d-block text-center mt-2 btn btn-danger"
           >
             Xem giỏ hàng và thanh toán
@@ -90,7 +110,7 @@ const BookUser = () => {
         style={{
           fontSize: "20px",
           backgroundColor: "#fff",
-          margin: "0 100px 10px 100px",
+          margin: "0 100px 0px 100px",
           borderRadius: "10px",
         }}
       >
@@ -136,13 +156,13 @@ const BookUser = () => {
                     width="16"
                     height="16"
                     fill="currentColor"
-                    class="bi bi-heart-fill"
+                    className="bi bi-heart-fill"
                     viewBox="0 0 16 16"
                     style={{ color: liked ? "red" : "black" }}
                     onClick={handleSetLiked}
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
                     />
                   </svg>
@@ -160,7 +180,7 @@ const BookUser = () => {
                       width="16"
                       height="16"
                       fill="currentColor"
-                      class="bi bi-dash"
+                      className="bi bi-dash"
                       viewBox="0 0 16 16"
                     >
                       <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
@@ -168,9 +188,8 @@ const BookUser = () => {
                   </button>
                   <input
                     type="text"
-                    class="input"
                     value={numOfBooks}
-                    className="border border-secondary-subtle rounded px-2"
+                    className="border border-secondary-subtle rounded px-2 input"
                     style={{ marginRight: "8px" }}
                     onChange={handleInput}
                   ></input>
@@ -184,7 +203,7 @@ const BookUser = () => {
                       width="16"
                       height="16"
                       fill="currentColor"
-                      class="bi bi-plus"
+                      className="bi bi-plus"
                       viewBox="0 0 16 16"
                     >
                       <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
@@ -192,7 +211,9 @@ const BookUser = () => {
                   </button>
                 </div>
                 <p className="fw-bold">Tạm tính</p>
-                <p className="fw-bold">{book.LastPublished.Price*numOfBooks}đ</p>
+                <p className="fw-bold">
+                  {book.LastPublished.Price * numOfBooks}đ
+                </p>
                 <button
                   className="btn btn-danger"
                   style={{ marginRight: "8px" }}

@@ -4,8 +4,7 @@ const Edition = db.Edition;
 const getEditionByBookId = async (req, res) => {
   const bookId = req.params.bookId;
   try {
-    // const editionId = req.params.editionId;
-    const editions = await Edition.find({ BookID: bookId });
+    const editions = await Edition.find({ BookID: bookId }).sort({ PublicationDate: -1 }).limit(1);
     if (!editions)
       return res
         .status(404)
