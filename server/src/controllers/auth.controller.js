@@ -41,18 +41,27 @@ const loginCustomer = async (req, res) => {
 
 const registerCustomer = async (req, res) => {
   try {
-    const { CustomerID, Name, Sex, Age, Username, Password, FavoriteGenres } =
-      req.body;
-
-    console.log(req.body);
-
+    const { Name, Sex, Age, Username, Password, FavoriteGenres } = req.body;
     const existingUser = await Customer.findOne({ Username });
     if (existingUser) {
-      return res.status(400).json({ message: "Tên đăng nhập tồn tại" });
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const latestCustomer = await Customer.findOne({}, "CustomerID")
+      .sort({ CustomerID: -1 })
+      .limit(1);
+
+    let newID = "00000";
+    if (latestCustomer && latestCustomer.CustomerID) {
+      const lastNumber = parseInt(
+        latestCustomer.CustomerID.replace("CU", ""),
+        10
+      );
+      newID = String(lastNumber + 1).padStart(5, "0");
     }
 
+    const generatedCustomerID = `CU${newID}`;
     const newCustomer = new Customer({
-      CustomerID,
+      CustomerID: generatedCustomerID,
       Name,
       Sex,
       Age,
@@ -71,7 +80,7 @@ const registerCustomer = async (req, res) => {
       await CustomerGenre.insertMany(FG);
     }
 
-    res.status(201).json({ message: "Đăng ký thành công" });
+    res.status(201).json({ message: "Customer registered successfully!" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -85,12 +94,16 @@ const loginStaff = async (req, res) => {
     const staff = await Staff.findOne({ Username });
     // console.log(staff);
     if (!staff) {
-      return res.status(400).json({ error: "Tên đăng nhập không đúng!" });
+      return res
+        .status(400)
+        .json({ error: "Invalid email or password1 Staff" });
     }
     const isMatch = await bcrypt.compare(Password, staff.Password);
     if (!isMatch) {
       // if (Password != staff.Password) {
-      return res.status(400).json({ error: "Mật khẩu không chính xác!" });
+      return res
+        .status(400)
+        .json({ error: "Invalid email or password2 staff" });
     }
 
     // Tạo token JWT
