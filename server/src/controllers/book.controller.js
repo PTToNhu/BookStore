@@ -4,81 +4,7 @@ const BookAward = db.BookAward;
 const BookGenre = db.BookGenre;
 const IsWritten = db.Is_written;
 const Ratings = db.Rating;
-// Get all books
-const getAllBooks = async (req, res) => {
-  try {
-    const books = await Book.aggregate([
-      {
-        $lookup: {
-          from: "book_award", // Collection của BookAward
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Awards",
-        },
-      },
-      {
-        $lookup: {
-          from: "book_genre", // Collection của BookGenre
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Genres",
-        },
-      },
-      {
-        $lookup: {
-          from: "is_written", // Collection của Author (thông qua IsWritten)
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Authors",
-        },
-      },
-    ]);
-    return res.status(200).json(books);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-// Get book by ID
-const getBookById = async (req, res) => {
-  const bookId = req.params.bookId;
-  try {
-    const book = await Book.aggregate([
-      { $match: { BookID: bookId } }, // Tìm sách theo BookID
-      {
-        $lookup: {
-          from: "book_award",
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Awards",
-        },
-      },
-      {
-        $lookup: {
-          from: "book_genre",
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Genres",
-        },
-      },
-      {
-        $lookup: {
-          from: "is_written",
-          localField: "BookID",
-          foreignField: "BookID",
-          as: "Authors",
-        },
-      },
-    ]);
-    if (!book || book.length === 0) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    return res.status(200).json(book[0]);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
+const Rating = db.Rating;
 // Add a new book
 const createBook = async (req, res) => {
   const {
@@ -175,81 +101,6 @@ const createBook = async (req, res) => {
   }
 };
 
-// Update a book by ID
-const updateBook = async (req, res) => {
-  const bookId = req.params.bookId;
-
-  if (!bookId) {
-    return res.status(400).json({ message: "Missing book ID" });
-  }
-
-  try {
-    const updatedBook = await Book.findOneAndUpdate(
-      { BookID: bookId },
-      req.body,
-      { new: true }
-    );
-
-    if (!updatedBook) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-
-    // Cập nhật Awards, Genres, Authors nếu cần
-    const { Awards, Genres, Authors } = req.body;
-
-    if (Awards) {
-      await BookAward.deleteMany({ BookID: bookId });
-      const awardsToSave = Awards.map((award) => ({
-        BookID: bookId,
-        ...award,
-      }));
-      await BookAward.insertMany(awardsToSave);
-    }
-
-    if (Genres) {
-      await BookGenre.deleteMany({ BookID: bookId });
-      const genresToSave = Genres.map((genre) => ({
-        BookID: bookId,
-        Genre: genre,
-      }));
-      await BookGenre.insertMany(genresToSave);
-    }
-
-    if (Authors) {
-      await IsWritten.deleteMany({ BookID: bookId });
-      const authorsToSave = Authors.map((authorId) => ({
-        BookID: bookId,
-        AuthorID: authorId,
-      }));
-      await IsWritten.insertMany(authorsToSave);
-    }
-
-    return res.status(200).json(updatedBook);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
-// Delete a book by ID
-
-const deleteBook = async (req, res) => {
-  const bookId = req.params.bookId;
-
-  if (!bookId) {
-    return res.status(400).json({ message: "Missing book ID" });
-  }
-
-  try {
-    const deletedBook = await Book.findByIdAndDelete(bookId);
-    if (!deletedBook) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    return res.status(200).json({ message: "Book deleted successfully" });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-
 // Get rating and comments for a book
 const getRatingBook = async (req, res) => {
   const bookId = req.params.bookId;
@@ -268,16 +119,12 @@ const getRatingBook = async (req, res) => {
 
 const bookSearch = async (req, res) => {
   const text = req.query.text;
-  console.log("search: ", text);
   if (!text) {
     return res.status(400).json({ message: "Missing search text" });
   }
   try {
     const books = await Book.find({
-      $or: [
-        { Title: { $regex: text, $options: "i" } },
-        { Description: { $regex: text, $options: "i" } },
-      ],
+      Title: { $regex: text, $options: "i" },
     });
 
     if (books.length === 0) {
@@ -289,91 +136,250 @@ const bookSearch = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
-const getBooksWithAuthorsAndLatestPublished = async (req, res) => {
+const getAllBooks = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 12;
+  const skip = (page - 1) * limit;
   try {
+    let earlyMatch = {};
+    let lateMatch = {};
+
+    if (req.query.authorId) {
+      earlyMatch["Author"] = {
+        $elemMatch: { AuthorID: req.query.authorId },
+      };
+    }
+
+    if (req.query.bookType) {
+      console.log("res.query.bookType", req.query.bookType);
+      earlyMatch["BookType"] = req.query.bookType;
+      console.log("REres.query.bookType", req.query.bookType);
+    }
+    console.log("earlyMatch", earlyMatch);
+
+    if (req.query.minPrice || req.query.maxPrice) {
+      lateMatch["LastPublished.Price"] = {};
+      if (req.query.minPrice)
+        lateMatch["LastPublished.Price"]["$gte"] = parseFloat(
+          req.query.minPrice
+        );
+      if (req.query.maxPrice)
+        lateMatch["LastPublished.Price"]["$lt"] = parseFloat(
+          req.query.maxPrice
+        );
+    }
+    // const books = await Book.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: "is_written",
+    //       localField: "BookID",
+    //       foreignField: "BookID",
+    //       as: "isWritten",
+    //     },
+    //   },
+    //   // {
+    //   //   $unwind: {
+    //   //     path: "$isWritten",
+    //   //     preserveNullAndEmptyArrays: true,
+    //   //   },
+    //   // },
+    //   // {
+    //   //   $group: {
+    //   //     _id: "$BookID",
+    //   //     Title: { $first: "$Title" },
+    //   //     BookType: { $first: "$BookType" },
+    //   //     Author: {
+    //   //       $addToSet: {
+    //   //         AuthorID: "$isWritten.AuthorID",
+    //   //       },
+    //   //     },
+    //   //   },
+    //   // },
+    //   {
+    //     $addFields: {
+    //       AuthorsID: {
+    //         $map: {
+    //           input: "$isWritten",
+    //           as: "a",
+    //           in: "$$a.AuthorID"
+    //         }
+    //       }
+    //     }
+    //   },
+    //   {$sort: {_id:1}},
+    //   ...(Object.keys(earlyMatch).length ? [{ $match: earlyMatch }] : []),
+    //   {
+    //     $lookup: {
+    //       from: "rating",
+    //       localField: "_id",
+    //       foreignField: "BookID",
+    //       as: "Ratings",
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       Rating: { $avg: "$Ratings.Rating" },
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "edition",
+    //       localField: "_id",
+    //       foreignField: "BookID",
+    //       as: "Edition",
+    //     },
+    //   },
+    //   {$sort: {
+    //     PublicationDate: 1
+    //   }},
+    //   {
+    //     $lookup: {
+    //       from: "issue",
+    //       localField: "_id",
+    //       foreignField: "BookID",
+    //       as: "Issue",
+    //     },
+    //   },
+    //   {$sort: {
+    //     PublicationDate: 1
+    //   }},
+    //   {
+    //     $addFields: {
+    //       LastPublished: {
+    //         $cond: {
+    //           if: { $in: ["$BookType", ["Sách tham khảo", "Tiểu thuyết"]] },
+    //           then: {
+    //             Price: { $arrayElemAt: ["$Edition.Price", 0] },
+    //           },
+    //           else: {
+    //             Volumn: { $arrayElemAt: ["$Issue.Volumn", 0] },
+    //             Price: { $arrayElemAt: ["$Issue.Price", 0] },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    //   ...(Object.keys(lateMatch).length ? [{ $match: lateMatch }] : []),
+    //   { $skip: skip },
+    //   { $limit: limit + 1 },
+    // ]);
     const books = await Book.aggregate([
-      [
-        {
-          $lookup: {
-            from: "is_written",
-            localField: "BookID",
-            foreignField: "BookID",
-            as: "isWritten",
+      {
+        $lookup: {
+          from: "is_written",
+          localField: "BookID",
+          foreignField: "BookID",
+          as: "isWritten",
+        },
+      },
+      {
+        $unwind: {
+          path: "$isWritten",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$BookID",
+          Title: { $first: "$Title" },
+          BookType: { $first: "$BookType" },
+          Author: {
+            $addToSet: {
+              AuthorID: "$isWritten.AuthorID",
+            },
           },
         },
-        {
-          $lookup: {
-            from: "author",
-            localField: "isWritten.AuthorID",
-            foreignField: "AuthorID",
-            as: "Authors",
+      },
+      { $sort: { _id: 1 } },
+      ...(Object.keys(earlyMatch).length ? [{ $match: earlyMatch }] : []),
+      {
+        $lookup: {
+          from: "rating",
+          localField: "_id",
+          foreignField: "BookID",
+          as: "Ratings",
+        },
+      },
+      {
+        $addFields: {
+          Rating: { $avg: "$Ratings.Rating" },
+        },
+      },
+      {
+        $lookup: {
+          from: "edition",
+          localField: "_id",
+          foreignField: "BookID",
+          as: "Edition",
+        },
+      },
+      {
+        $lookup: {
+          from: "issue",
+          localField: "_id",
+          foreignField: "BookID",
+          as: "Issue",
+        },
+      },
+      {
+        $addFields: {
+          SortedEditions: {
+            $sortArray: { input: "$Edition", sortBy: { PublicationDate: 1 } },
+          },
+          SortedIssues: {
+            $sortArray: { input: "$Issue", sortBy: { PublicationDate: 1 } },
           },
         },
-        {
-          $lookup: {
-            from: "edition",
-            localField: "BookID",
-            foreignField: "BookID",
-            as: "Edition",
-          },
-        },
-        {
-          $lookup: {
-            from: "issue",
-            localField: "BookID",
-            foreignField: "BookID",
-            as: "Issue",
-          },
-        },
-        {
-          $unwind: {
-            path: "$Edition",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $sort: {
-            "Edition.PublicationDate": -1,
-          },
-        },
-        {
-          $unwind: {
-            path: "$Issue",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $sort: {
-            "Issue.PublicationDate": -1,
-          },
-        },
-        {
-          $group: {
-            _id: "$BookID",
-            Title: { $first: "$Title" },
-            Description: { $first: "$Description" },
-            BookType: { $first: "$BookType" },
-            Authors: { $first: "$Authors" },
-            LastPublished: {
-              $first: {
-                $cond: {
-                  if: { $in: ["$BookType", ["Sách tham khảo", "Tiểu thuyết"]] },
-                  then: "$Edition",
-                  else: "$Issue",
-                },
+      },
+      {
+        $addFields: {
+          LastPublished: {
+            Price: {
+              $cond: {
+                if: { $in: ["$BookType", ["Sách tham khảo", "Tiểu thuyết"]] },
+                then: { $last: "$SortedEditions.Price" },
+                else: { $last: "$SortedIssues.Price" },
+              },
+            },
+            Volumn: {
+              $cond: {
+                if: { $in: ["$BookType", ["Sách tham khảo", "Tiểu thuyết"]] },
+                then: null,
+                else: { $last: "$SortedIssues.Volumn" },
               },
             },
           },
         },
-      ],
+      },
+      ...(Object.keys(lateMatch).length ? [{ $match: lateMatch }] : []),
+      {
+        $project: {
+          BookID: 1,
+          Title: 1,
+          BookType: 1,
+          AuthorsID: 1,
+          Rating: 1,
+          LastPublished: 1,
+        },
+      },
+      { $skip: skip },
+      { $limit: limit + 1 },
     ]);
-
-    res.status(200).json(books);
+    const hasMore = books.length > limit;
+    const data = hasMore ? books.slice(0, limit) : books;
+    if (!data || data.length === 0) {
+      return res.status(201).json({ message: "Không tìm thấy sách phù hợp." });
+    }
+    res.status(200).json({
+      message: "Tìm thấy sách phù hợp",
+      books: data,
+      hasMore: hasMore,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
+const getBookById = async (req, res) => {
   const BookID = req.params.bookId;
   try {
     const book = await Book.aggregate([
@@ -475,6 +481,29 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+const getAvgRatingById = async (req, res) => {
+  const BookID = req.params.BookID;
+  try {
+    const rating = await Rating.aggregate([
+      {
+        $match: {
+          BookID: `${BookID}`,
+        },
+      },
+      {
+        $group: {
+          _id: "$BookID",
+          Rating: {
+            $avg: "$Rating",
+          },
+        },
+      },
+    ]);
+    return res.status(200).json(rating[0].Rating ? rating[0].Rating : 0);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
 
 const getBooksByFilters = async (req, res) => {
   try {
@@ -501,7 +530,7 @@ const getBooksByFilters = async (req, res) => {
     const books = await Book.aggregate([
       {
         $lookup: {
-          from: "book_award", // JOIN với BookAward
+          from: "book_award",
           localField: "BookID",
           foreignField: "BookID",
           as: "Awards",
@@ -509,7 +538,7 @@ const getBooksByFilters = async (req, res) => {
       },
       {
         $lookup: {
-          from: "book_genre", // JOIN với BookGenre
+          from: "book_genre",
           localField: "BookID",
           foreignField: "BookID",
           as: "Genres",
@@ -517,14 +546,14 @@ const getBooksByFilters = async (req, res) => {
       },
       {
         $lookup: {
-          from: "is_written", // JOIN với bảng chứa thông tin tác giả
+          from: "is_written",
           localField: "BookID",
           foreignField: "BookID",
           as: "Authors",
         },
       },
       {
-        $match: matchCondition, // Áp dụng bộ lọc
+        $match: matchCondition,
       },
     ]);
 
@@ -623,17 +652,15 @@ const deleteRating = async (req, res) => {
   }
 };
 module.exports = {
+  createBook,
   getAllBooks,
   getBookById,
-  createBook,
-  updateBook,
-  deleteBook,
-  getRatingBook,
   bookSearch,
   getBooksByFilters,
-  getBooksWithAuthorsAndLatestPublished,
-  getBooksWithAuthorsAndLatestPublishedByBookID,
+  // getBooksWithAuthorsAndLatestPublished,
+  // getBooksWithAuthorsAndLatestPublishedByBookID,
   addRating,
   updateRating,
   deleteRating,
+  getAvgRatingById,
 };

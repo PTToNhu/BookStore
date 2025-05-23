@@ -54,7 +54,7 @@ const Login = () => {
         if (decoded.Role === "STAFF") {
           navigate(`/management-book`);
         } else {
-          navigate(`/management-book`);
+          navigate(`/CUSTOMER/${decoded.CustomerID}`);
         }
       } catch (error) {
         console.error("Lỗi giải mã token:", error);

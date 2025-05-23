@@ -1,33 +1,17 @@
 const { Router } = require("express");
 const path = require("path");
 const controllers = require("../controllers");
-
-const { authenticateUser, authorizeRole } = require("../middlewares/auth");
-const route = Router();
-
 const bookController = controllers.bookController;
 const editionController = controllers.editionController;
 const issueController = controllers.issueController;
+const { authenticateUser, authorizeRole } = require("../middlewares/auth");
+const route = Router();
 
 route.post(
   "/create",
   // authenticateUser,
   // authorizeRole(["STAFF"]),
   bookController.createBook
-);
-// PUT Book
-route.put(
-  "/update/:bookId",
-  authenticateUser,
-  authorizeRole(["STAFF"]),
-  bookController.updateBook
-);
-// DELETE Book
-route.delete(
-  "/delete/:bookId",
-  authenticateUser,
-  authorizeRole(["STAFF"]),
-  bookController.deleteBook
 );
 
 // edition
@@ -83,4 +67,5 @@ route.delete(
   authorizeRole(["STAFF", "CUSTOMER"]),
   bookController.deleteRating
 );
+
 module.exports = route;
