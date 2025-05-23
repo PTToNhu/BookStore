@@ -1,6 +1,6 @@
 const db = require("../models");
 const Book = db.Book;
-const Rating=db.Rating;
+const Rating = db.Rating;
 
 const bookSearch = async (req, res) => {
   const text = req.query.text;
@@ -13,7 +13,7 @@ const bookSearch = async (req, res) => {
     });
 
     if (books.length === 0) {
-      return res.status(404).json({ message: "No books found" });
+      return res.status(404).json({ message: "Không tìm thấy sách phù hợp" });
     }
 
     return res.status(200).json(books);
@@ -372,7 +372,7 @@ const getAvgRatingById = async (req, res) => {
         },
       },
     ]);
-    return res.status(200).json(rating[0].Rating?rating[0].Rating:0);
+    return res.status(200).json(rating[0].Rating ? rating[0].Rating : 0);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -382,5 +382,5 @@ module.exports = {
   getAllBooks,
   getBookById,
   bookSearch,
-  getAvgRatingById
+  getAvgRatingById,
 };

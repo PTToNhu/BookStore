@@ -32,7 +32,8 @@ const BookSearch = () => {
         data.forEach((book) => fetchPrice(book.BookType, book.BookID));
       } catch (e) {
         setError(e.message);
-        alert(error);
+        alert("Không tìm thấy sách phù hợp");
+        navigate(`/customer/${customerId}`);
       }
     };
     fetchBooks();

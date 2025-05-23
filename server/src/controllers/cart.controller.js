@@ -1,6 +1,5 @@
 const db = require("../models");
 const Cart = db.Cart;
-const Book = db.Book;
 
 const getAllBooks = async (req, res) => {
   const customerId = req.params.customerId;
