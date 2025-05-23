@@ -10,7 +10,7 @@ const StaffSchema = Schema({
   Password: { type: String, required: true },
   ManagerFag: { type: Number },
   HireDate: { type: Date },
-  MaanageID: { type: mongoose.Schema.Types.ObjectId },
+  ManagerID: { type: String },
   Role: { type: String, default: "STAFF" },
 });
 

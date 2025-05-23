@@ -3,12 +3,12 @@ const Schema = mongoose.Schema;
 
 const ManageDiscountSchema = Schema({
   StaffID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: "Staff",
   },
   DiscountID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: "Discount",
   },

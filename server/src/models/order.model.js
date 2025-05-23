@@ -5,8 +5,8 @@ const OrderSchema = Schema(
   {
     OrderID: { type: String },
     Date: { type: Date },
-    CustomerID: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
-    StaffID: { type: mongoose.Schema.Types.ObjectId, ref: "Staff" },
+    CustomerID: { type: String, ref: "Customer" },
+    StaffID: { type: String, ref: "Staff" },
     ShipmentCost: { type: Number },
     Address: { type: String },
     Status: { type: String },

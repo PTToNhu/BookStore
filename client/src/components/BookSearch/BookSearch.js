@@ -9,19 +9,21 @@ const BookSearch = () => {
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
   const searchText = searchParams.get("text");
-  const [search, setSearch]=useState("")
-  useEffect(()=>{
-    if(searchText){
-        setSearch(searchText)
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    if (searchText) {
+      setSearch(searchText);
     }
-  },[searchText])
-  console.log("search:", search)
+  }, [searchText]);
+  console.log("search:", search);
   useEffect(() => {
     if (!search) return;
     const fetchBooks = async () => {
       try {
         const encodedText = encodeURIComponent(search);
-        const response = await fetch(`http://localhost:3000/api/book/search?text=${encodedText}`);
+        const response = await fetch(
+          `http://localhost:5000/api/book/search?text=${encodedText}`
+        );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu sách!");
         }
@@ -38,7 +40,7 @@ const BookSearch = () => {
     try {
       if (BookType === "Truyện tranh" || BookType === "Tạp chí") {
         const response = await fetch(
-          `http://localhost:3000/api/get-all-issue/${BookID}`
+          `http://localhost:5000/api/get-all-issue/${BookID}`
         );
         if (!response.ok)
           throw new Error(`Không thể lấy giá cho sách ID ${BookID}`);
@@ -60,13 +62,13 @@ const BookSearch = () => {
         );
       } else {
         const response = await fetch(
-          `http://localhost:3000/api/get-all-edition/${BookID}`
+          `http://localhost:5000/api/get-all-edition/${BookID}`
         );
         if (!response.ok)
           throw new Error(`Không thể lấy giá cho sách ID ${BookID}`);
         const edition = await response.json();
         let lastEdition = edition?.at(-1) ?? null;
-        console.log(lastEdition)
+        console.log(lastEdition);
 
         setBooks((prevBooks) =>
           prevBooks.map((book) =>
@@ -90,7 +92,7 @@ const BookSearch = () => {
     const fetchAuthors = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/author/get-all"
+          "http://localhost:5000/api/author/get-all"
         );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu tác giả!");
@@ -108,7 +110,7 @@ const BookSearch = () => {
     const fetchGenre = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/bookgenre/get-all"
+          "http://localhost:5000/api/bookgenre/get-all"
         );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu thể loại!");

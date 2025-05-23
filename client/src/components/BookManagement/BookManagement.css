@@ -1,0 +1,308 @@
+/* Tổng thể container */
+.book-management-container {
+  padding: 20px;
+  background-color: #ccc; /* Xám nhạt */
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+  /* margin: 40px auto; */
+  width: 100%; /* Giới hạn chiều rộng */
+  font-family: "Arial", sans-serif; /* Font chữ */
+}
+
+/* Tiêu đề */
+.header {
+  margin-top: 20px;
+}
+
+.header h1 {
+  font-size: 28px;
+  color: #333333; /* Xám đậm */
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* Thanh tìm kiếm và nút thêm sách */
+.search-and-add-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  flex: 1; /* Tự động co giãn */
+  max-width: 500px;
+}
+
+.search-button,
+.add-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.search-button {
+  background-color: #007bff; /* Xanh dương */
+  color: white;
+}
+
+.search-button:hover {
+  background-color: #0056b3; /* Xanh dương đậm hơn */
+}
+
+.add-button {
+  background-color: #28a745; /* Xanh lá */
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #218838; /* Xanh lá đậm hơn */
+}
+
+/* Modal thêm sách */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Nền mờ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  width: 400px;
+}
+
+.modal-content h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #1e3a8a; /* Xanh đậm */
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.form-textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.save-button {
+  padding: 10px;
+  background-color: #28a745; /* Xanh lá */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+  margin-right: 5px;
+}
+
+.save-button:hover {
+  background-color: #218838; /* Xanh lá đậm hơn */
+}
+
+.cancel-button {
+  padding: 10px;
+  background-color: #dc3545; /* Đỏ nhạt */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.cancel-button:hover {
+  background-color: #c82333; /* Đỏ đậm hơn */
+}
+
+/* Bảng quản lý sách */
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.book-table th,
+.book-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb; /* Đường kẻ nhạt */
+  font-size: 14px;
+}
+
+.book-table th {
+  background-color: #1d4ed8; /* Xanh đậm */
+  color: white; /* Chữ trắng */
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.book-table tbody tr:nth-child(odd) {
+  background-color: #f9fafb; /* Dòng lẻ */
+}
+
+.book-table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* Dòng chẵn */
+}
+
+.book-table tbody tr:hover {
+  background-color: #e0f2fe; /* Màu khi hover */
+}
+
+/* Clickable cell */
+.clickable {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.clickable:hover {
+  text-decoration: underline;
+}
+/* Phân trang */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 5px; /* Khoảng cách giữa các nút */
+}
+
+.pagination-button {
+  padding: 8px 12px;
+  border: 1px solid #007bff;
+  background-color: #ffffff;
+  color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination-button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination-button.active {
+  background-color: #0056b3;
+  color: white;
+  border: 1px solid #0056b3;
+}
+
+.pagination-button:disabled {
+  background-color: #e6e6e6;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Form add book */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Làm mờ nền */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-container {
+  background-color: #cfe2ff;
+  border-radius: 2%;
+  width: 50%;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: left;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.save-button {
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+  margin-right: 5px;
+}
+
+.cancel-button {
+  padding: 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+.required {
+  color: red;
+  font-weight: bold;
+}

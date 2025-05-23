@@ -3,7 +3,7 @@ const Book = db.Book;
 const BookAward = db.BookAward;
 const BookGenre = db.BookGenre;
 const IsWritten = db.Is_written;
-const Rating = db.Rating;
+const Ratings = db.Rating;
 // Get all books
 const getAllBooks = async (req, res) => {
   try {
@@ -82,7 +82,6 @@ const getBookById = async (req, res) => {
 // Add a new book
 const createBook = async (req, res) => {
   const {
-    BookID,
     Description,
     Title,
     VolumnNumber,
@@ -93,12 +92,48 @@ const createBook = async (req, res) => {
     Genres,
     Authors,
   } = req.body;
-
-  if (!BookID || !PubID) {
-    return res.status(400).json({ message: "Missing required fields" });
+  if (!Title) {
+    return res.status(400).json({ message: "Vui lòng nhập tiêu đề cho sách" });
+  }
+  if (!PubID) {
+    return res.status(400).json({ message: "Vui lòng chọn nhà xuất bản" });
   }
 
   try {
+    let prefix;
+    switch (BookType) {
+      case "Tạp chí":
+        prefix = "MA";
+        break;
+      case "Truyện tranh":
+        prefix = "CO";
+        break;
+      case "Sách tham khảo":
+        prefix = "RE";
+        break;
+      case "Tiểu thuyết":
+        prefix = "NO";
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid BookType" });
+    }
+
+    // Tìm BookID lớn nhất dựa vào prefix và tăng thêm 1
+    const lastBook = await Book.find({
+      BookID: { $regex: `^${prefix}\\d{3}$` },
+    })
+      .sort({ BookID: -1 })
+      .limit(1);
+    console.log(lastBook);
+    let newIDNumber = 1; // Giá trị mặc định nếu chưa có BookID nào
+    if (lastBook.length > 0) {
+      const lastID = lastBook[0].BookID;
+      const numberPart = parseInt(lastID.slice(2));
+      newIDNumber = numberPart + 1;
+    }
+
+    const BookID = `${prefix}${String(newIDNumber).padStart(3, "0")}`; // Tạo BookID mới
+
     const newBook = new Book({
       BookID,
       Description,
@@ -127,16 +162,14 @@ const createBook = async (req, res) => {
       }));
       await BookGenre.insertMany(genresToSave);
     }
-
-    if (Authors && Authors.length > 0) {
-      const authorsToSave = Authors.map((authorId) => ({
-        BookID,
-        AuthorID: authorId,
-      }));
-      await IsWritten.insertMany(authorsToSave);
+    console.log(Authors);
+    if (Authors) {
+      const authorToSave = { BookID, AuthorID: Authors };
+      console.log(authorToSave);
+      await IsWritten.create(authorToSave);
     }
 
-    return res.status(201).json({ message: "Book created successfully!" });
+    return res.status(201).json({ message: "Thêm sách thành công!", BookID });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -347,12 +380,12 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
       [
         {
           $match: {
-            BookID: `${BookID}`,
+            BookID: `${BookID}`, // Lấy BookID theo yêu cầu
           },
         },
         {
           $lookup: {
-            from: "is_written",
+            from: "is_written", // Bảng is_written
             localField: "BookID",
             foreignField: "BookID",
             as: "isWritten",
@@ -360,7 +393,7 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
         },
         {
           $lookup: {
-            from: "author",
+            from: "author", // Bảng Author
             localField: "isWritten.AuthorID",
             foreignField: "AuthorID",
             as: "Authors",
@@ -368,7 +401,7 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
         },
         {
           $lookup: {
-            from: "edition",
+            from: "edition", // Bảng Edition
             localField: "BookID",
             foreignField: "BookID",
             as: "Edition",
@@ -376,32 +409,40 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
         },
         {
           $lookup: {
-            from: "issue",
+            from: "issue", // Bảng Issue
             localField: "BookID",
             foreignField: "BookID",
             as: "Issue",
           },
         },
         {
+          $lookup: {
+            from: "publisher", // Bảng Publisher
+            localField: "PubID",
+            foreignField: "PubID",
+            as: "Publisher",
+          },
+        },
+        {
           $unwind: {
-            path: "$Edition",
+            path: "$Edition", // Giữ cấu trúc Edition
             preserveNullAndEmptyArrays: true,
           },
         },
         {
           $sort: {
-            "Edition.PublicationDate": -1,
+            "Edition.PublicationDate": -1, // Sắp xếp Edition theo ngày xuất bản
           },
         },
         {
           $unwind: {
-            path: "$Issue",
+            path: "$Issue", // Giữ cấu trúc Issue
             preserveNullAndEmptyArrays: true,
           },
         },
         {
           $sort: {
-            "Issue.PublicationDate": -1,
+            "Issue.PublicationDate": -1, // Sắp xếp Issue theo ngày xuất bản
           },
         },
         {
@@ -411,6 +452,10 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
             Description: { $first: "$Description" },
             BookType: { $first: "$BookType" },
             Authors: { $first: "$Authors" },
+            PubID: { $first: "$PubID" },
+            PublishingHouse: {
+              $first: { $arrayElemAt: ["$Publisher.PublishingHouse", 0] },
+            }, // Thêm tên nhà xuất bản
             LastPublished: {
               $first: {
                 $cond: {
@@ -425,7 +470,7 @@ const getBooksWithAuthorsAndLatestPublishedByBookID = async (req, res) => {
       ],
     ]);
 
-    res.status(200).json(book[0]);
+    res.status(200).json(book[0]); // Trả về kết quả đầu tiên của nhóm
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -493,6 +538,90 @@ const getBooksByFilters = async (req, res) => {
   }
 };
 
+// RATING
+const addRating = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { Rating, Comment } = req.body;
+
+    const BookID = req.params.bookId;
+    const CustomerID = req.user.CustomerID;
+
+    // Kiểm tra nếu customer đã đánh giá sách này trước đó
+    const existingRating = await Ratings.findOne({ BookID, CustomerID });
+
+    if (existingRating) {
+      return res.status(400).json({ message: "Bạn đã đánh giá sách này rồi!" });
+    }
+    const ReviewID = `RV${Date.now()}`;
+
+    // Tạo đánh giá mới
+    const newRating = new Ratings({
+      ReviewID,
+      Rating,
+      Comment,
+      CustomerID,
+      BookID,
+    });
+
+    console.log(newRating);
+    await newRating.save();
+    res
+      .status(201)
+      .json({ message: "Đánh giá thành công!", rating: newRating });
+  } catch (error) {
+    console.error("Lỗi khi thêm đánh giá:", error);
+    res.status(500).json({ error: "Có lỗi xảy ra, vui lòng thử lại sau!" });
+  }
+};
+
+const updateRating = async (req, res) => {
+  try {
+    const { Rating, Comment } = req.body;
+    const BookID = req.params.bookId;
+    const CustomerID = req.user.CustomerID;
+
+    // Kiểm tra nếu khách hàng đã đánh giá cuốn sách này chưa
+    const existingRating = await Ratings.findOne({ BookID, CustomerID });
+
+    if (!existingRating) {
+      return res.status(404).json({ message: "Bạn chưa đánh giá sách này!" });
+    }
+
+    // Cập nhật đánh giá
+    existingRating.Rating = Rating ?? existingRating.Rating;
+    existingRating.Comment = Comment ?? existingRating.Comment;
+    await existingRating.save();
+
+    res.status(200).json({
+      message: "Cập nhật đánh giá thành công!",
+      rating: existingRating,
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật đánh giá:", error);
+    res.status(500).json({ error: "Có lỗi xảy ra, vui lòng thử lại sau!" });
+  }
+};
+
+const deleteRating = async (req, res) => {
+  try {
+    const BookID = req.params.bookId;
+    const CustomerID = req.user.CustomerID;
+    console.log(BookID, CustomerID);
+    const existingRating = await Ratings.findOne({ BookID, CustomerID });
+    console.log(existingRating);
+    if (!existingRating) {
+      return res.status(404).json({ message: "Bạn chưa đánh giá sách này!" });
+    }
+
+    await Ratings.deleteOne({ BookID, CustomerID });
+
+    res.status(200).json({ message: "Xóa đánh giá thành công!" });
+  } catch (error) {
+    console.error("Lỗi khi xóa đánh giá:", error);
+    res.status(500).json({ error: "Có lỗi xảy ra, vui lòng thử lại sau!" });
+  }
+};
 module.exports = {
   getAllBooks,
   getBookById,
@@ -504,4 +633,7 @@ module.exports = {
   getBooksByFilters,
   getBooksWithAuthorsAndLatestPublished,
   getBooksWithAuthorsAndLatestPublishedByBookID,
+  addRating,
+  updateRating,
+  deleteRating,
 };

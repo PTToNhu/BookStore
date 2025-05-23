@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const IsWrittenSchema = Schema({
-  BookID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Book" },
+  BookID: { type: String, required: true, ref: "Book" },
   AuthorID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: "Author",
   },

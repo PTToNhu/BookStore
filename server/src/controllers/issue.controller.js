@@ -38,13 +38,17 @@ const createIssue = async (req, res) => {
       Volumn,
       Price,
       Amount,
-      BookID,
     } = req.body;
-
+    const BookID = req.params.bookId;
     if (!ISSN || !BookID) {
       return res.status(400).json({ message: "Missing required fields" });
     }
-
+    const existingEdition = await Issue.findOne({ ISSN });
+    if (existingEdition) {
+      return res
+        .status(400)
+        .json({ message: "ISSN đã tồn tại trong hệ thống." });
+    }
     const newIssue = new Issue({
       ISSN,
       IssueNumber,
@@ -59,11 +63,33 @@ const createIssue = async (req, res) => {
 
     await newIssue.save();
 
-    res
-      .status(201)
-      .json({ message: "Issue created successfully!", newEdition });
+    res.status(201).json({ message: "Issue created successfully!", newIssue });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateIssue = async (req, res) => {
+  try {
+    const { IssueNumber, PublicationDate, Pages, Volumn, Price, Amount } =
+      req.body;
+    const ISSN = req.params.issn;
+
+    const updatedIssue = await Issue.findOneAndUpdate(
+      { ISSN },
+      { IssueNumber, PublicationDate, Pages, Volumn, Price, Amount },
+      { new: true }
+    );
+
+    if (!updatedIssue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Issue updated successfully!", updatedIssue, ISSN });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
@@ -76,7 +102,7 @@ const deleteIssue = async (req, res) => {
       return res.status(400).json({ message: "Missing ISSN" });
     }
 
-    const deletedIssue = await Issue.findOneAndDelete({ ISBN: issn });
+    const deletedIssue = await Issue.findOneAndDelete({ ISSN: issn });
 
     if (!deletedIssue) {
       return res.status(404).json({ message: "Issue not found" });
@@ -84,7 +110,7 @@ const deleteIssue = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Issue deleted successfully!", deletedEdition });
+      .json({ message: "Issue deleted successfully!", deletedIssue });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -96,4 +122,5 @@ module.exports = {
   getIssueByIssueId,
   createIssue,
   deleteIssue,
+  updateIssue,
 };

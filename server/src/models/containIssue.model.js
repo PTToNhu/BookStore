@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const ContainIssue = Schema({
   OrderID: { type: String },
-  ISBN: { type: mongoose.Schema.Types.ObjectId, ref: "Issue" },
+  ISBN: { type: String, ref: "Issue" },
   Quantity: { type: Number },
 });
 

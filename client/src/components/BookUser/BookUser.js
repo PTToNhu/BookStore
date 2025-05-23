@@ -40,14 +40,14 @@ const BookUser = () => {
     const fetchBook = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/book/${bookId}`
+          `http://localhost:5000/api/book/${bookId}`
         );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu sách!");
         }
         const data = await response.json();
         setBook(data);
-        console.log(data)
+        console.log(data);
       } catch (error) {
         setError(error.message);
       }
@@ -192,7 +192,9 @@ const BookUser = () => {
                   </button>
                 </div>
                 <p className="fw-bold">Tạm tính</p>
-                <p className="fw-bold">{book.LastPublished.Price*numOfBooks}đ</p>
+                <p className="fw-bold">
+                  {book.LastPublished.Price * numOfBooks}đ
+                </p>
                 <button
                   className="btn btn-danger"
                   style={{ marginRight: "8px" }}

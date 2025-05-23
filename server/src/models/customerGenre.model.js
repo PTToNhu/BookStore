@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const CustomerGenreSchema = Schema({
   CustomerID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: "Customer",
   },

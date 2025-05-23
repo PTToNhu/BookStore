@@ -1,0 +1,133 @@
+.book-detail-container {
+  padding: 20px;
+  background-color: #ccc; /* Xám nhạt */
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+  /* margin: 20px auto; */
+  width: 100%;
+  font-family: "Arial", sans-serif; /* Font chữ */
+}
+
+/* Phần thông tin sách */
+.book-infor {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #ffffff; /* Trắng */
+  border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.book-infor h1 {
+  font-size: 24px;
+  color: #333333; /* Màu đen xám */
+  margin-bottom: 10px;
+}
+
+.book-infor p {
+  font-size: 16px;
+  color: #555555; /* Xám đậm */
+  margin: 5px 0;
+}
+
+.book-infor p strong {
+  color: #222222; /* Màu nổi bật */
+}
+
+/* Phần danh sách Edition/Issue */
+.list-edition-issue {
+  margin-top: 30px;
+}
+
+.list-edition-issue h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #1e3a8a; /* Màu xanh đậm */
+  text-transform: uppercase;
+}
+
+/* Bảng Edition/Issue */
+.edition-issue-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff; /* Trắng */
+  border-radius: 10px;
+  overflow: hidden; /* Giữ kiểu bo góc */
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.edition-issue-table th,
+.edition-issue-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb; /* Đường kẻ nhạt */
+  font-size: 14px;
+}
+
+.edition-issue-table th {
+  background-color: #1d4ed8; /* Xanh đậm */
+  color: white; /* Chữ trắng */
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.edition-issue-table tbody tr:nth-child(odd) {
+  background-color: #f9fafb; /* Dòng lẻ */
+}
+
+.edition-issue-table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* Dòng chẵn */
+}
+
+.edition-issue-table tbody tr:hover {
+  background-color: #e0f2fe; /* Màu khi hover */
+}
+
+/* Các nút hành động */
+.add-button,
+.edit-button,
+.delete-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Nút thêm */
+.add-button {
+  background-color: #28a745; /* Xanh lá */
+  color: white;
+  margin-top: 15px;
+  display: block;
+  width: 200px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.add-button:hover {
+  background-color: #218838; /* Màu đậm hơn khi hover */
+}
+
+/* Nút sửa */
+.edit-button {
+  background-color: #ffc107; /* Vàng nhạt */
+  color: black;
+  margin-right: 5px;
+}
+
+.edit-button:hover {
+  background-color: #e0a800; /* Vàng đậm hơn khi hover */
+}
+
+/* Nút xóa */
+.delete-button {
+  background-color: #dc3545; /* Đỏ nhạt */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333; /* Đỏ đậm hơn khi hover */
+}

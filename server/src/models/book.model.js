@@ -7,14 +7,13 @@ const BookSchema = Schema({
   Title: { type: String },
   VolumnNumber: { type: Number },
   PubID: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     ref: "Publisher",
   },
   BookType: { type: String },
   SeriesID: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
+    type: String,
     ref: "Series",
   },
 });

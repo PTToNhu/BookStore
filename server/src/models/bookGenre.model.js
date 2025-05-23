@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const BookGenreSchema = Schema({
-  BookID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Book" },
+  BookID: { type: String, required: true, ref: "Book" },
   Genre: { type: String },
 });
 

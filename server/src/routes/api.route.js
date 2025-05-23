@@ -6,14 +6,23 @@ const editionController = controllers.editionController;
 const issueController = controllers.issueController;
 const orderController = controllers.orderController;
 const authorController = controllers.authorController;
-const bookGenreController=controllers.bookGenreController;
+const bookGenreController = controllers.bookGenreController;
+const staffController = controllers.staffController;
 const route = Router();
+const { authenticateUser, authorizeRole } = require("../middlewares/auth");
+
 //* BOOK
 // GET Book
-route.get("/book/get-all", bookController.getBooksWithAuthorsAndLatestPublished);
-route.get("/book/search", bookController.bookSearch)
-route.get("/book/filter",bookController.getBooksByFilters)
-route.get("/book/:bookId", bookController.getBooksWithAuthorsAndLatestPublishedByBookID);
+route.get(
+  "/book/get-all",
+  bookController.getBooksWithAuthorsAndLatestPublished
+);
+route.get("/book/search", bookController.bookSearch);
+route.get("/book/filter", bookController.getBooksByFilters);
+route.get(
+  "/book/:bookId",
+  bookController.getBooksWithAuthorsAndLatestPublishedByBookID
+);
 
 // POST Book
 // route.post("/book/create", bookController.createBook);
@@ -34,11 +43,23 @@ route.get("/get-all-rating/:bookId", bookController.getRatingBook);
 
 //* ORDER
 route.get(
-  "/order/get-all/:customerId",
+  "/order/get-all/customer/:customerId",
   orderController.getAllOrderByCustomerId
 );
-route.get("/order/get-all/:staffId", orderController.getAllOrderByStaffId);
+route.get(
+  "/order/get-all/staff/:staffId",
+  orderController.getAllOrderByStaffId
+);
+route.get("/order/unassigned", orderController.getUnassignedOrders);
+
 route.get("/author/get-all", authorController.getAllAuthors);
 route.get("/bookgenre/get-all", bookGenreController.getAllBookGenre);
-
+route.get("/get-all-publisher", authorController.getAllPublisher);
+// ADMIN
+route.get(
+  "/staff/book/get-all",
+  authenticateUser,
+  authorizeRole(["STAFF", "CUSTOMER"]),
+  staffController.getBooksWithAuthorsAndLatestPublished
+);
 module.exports = route;

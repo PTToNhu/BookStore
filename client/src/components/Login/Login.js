@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import logo from "../../asset/logo.png";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -18,37 +18,43 @@ const Login = () => {
       setError("Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
       return;
     }
+
+    // Xác định API đăng nhập dựa vào vai trò đã chọn
+    const loginAPI =
+      role === "STAFF"
+        ? "http://localhost:5000/staff/auth/login-staff"
+        : "http://localhost:5000/customer/auth/login-customer";
+
     try {
-      const response = await fetch(
-        "http://localhost:3000/customer/auth/login-customer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Username: username,
-            Password: password,
-          }),
-        }
-      );
+      const response = await fetch(loginAPI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Username: username,
+          Password: password,
+        }),
+      });
 
       const data = await response.json();
-
+      console.log("data: ", data);
       if (!response.ok) {
         throw new Error(data.error || "Đăng nhập thất bại");
       }
 
       localStorage.setItem("token", data.token);
+
       try {
         const decoded = jwtDecode(data.token);
         setError("");
         console.log("Đăng nhập thành công", { username });
 
+        // Điều hướng người dùng dựa vào vai trò từ token
         if (decoded.Role === "STAFF") {
-          navigate(`/STAFF/${decoded.CustomerID}`);
+          navigate(`/management-book`);
         } else {
-          navigate(`/CUSTOMER/${decoded.CustomerID}`);
+          navigate(`/management-book`);
         }
       } catch (error) {
         console.error("Lỗi giải mã token:", error);

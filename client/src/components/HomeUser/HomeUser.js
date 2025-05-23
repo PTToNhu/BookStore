@@ -11,7 +11,7 @@ const HomeUser = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/book/get-all");
+        const response = await fetch("http://localhost:5000/api/book/get-all");
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu sách!");
         }
@@ -28,7 +28,7 @@ const HomeUser = () => {
     const fetchAuthors = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/author/get-all"
+          "http://localhost:5000/api/author/get-all"
         );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu tác giả!");
@@ -46,7 +46,7 @@ const HomeUser = () => {
     const fetchGenre = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/bookgenre/get-all"
+          "http://localhost:5000/api/bookgenre/get-all"
         );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu thể loại!");
