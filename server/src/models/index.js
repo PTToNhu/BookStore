@@ -13,7 +13,8 @@ const Shipment = require("./shipment.model");
 const Author = require("./author.model");
 const Publisher = require("./publisher.model");
 const Cart = require("./cart.model");
-
+const ContainEdition = require("./containEdition.model");
+const ContainIssue = require("./containIssue.model");
 module.exports = {
   Book,
   Customer,
@@ -30,4 +31,6 @@ module.exports = {
   Author,
   Publisher,
   Cart,
+  ContainEdition,
+  ContainIssue,
 };

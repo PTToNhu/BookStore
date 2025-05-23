@@ -12,4 +12,6 @@ route.put(
   authorizeRole(["STAFF"]),
   orderController.updateStatusOrder
 );
+
+route.post("/create", orderController.createOrder);
 module.exports = route;

@@ -10,12 +10,17 @@ import BookManagement from "./components/BookManagement/BookManagement";
 import BookDetail from "./components/BookManagement/BookDetail";
 import StaffProfile from "./components/Staff/StaffInfo";
 import OrderManagement from "./components/ManageOrder/ManageOrder";
+import OrderHistory from "./components/OrderHistoty/OrderHistory";
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route
+            path="customer/order-history/:customerId"
+            element={<OrderHistory />}
+          ></Route>
           <Route path="/customer/:userId" element={<HomeUser />} />
           <Route path="/customer/:userId/book/:bookId" element={<BookUser />} />
           <Route path="/customer/:userId/cart" element={<CartUser />} />

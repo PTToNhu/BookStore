@@ -31,6 +31,7 @@ route.get("/get-all-issue/:bookId", issueController.getIssueByBookId); //single 
 route.get("/issue/:issueId", issueController.getIssueByIssueId);
 
 //* ORDER
+route.get("/order/get-all/:customerId", orderController.getOrdersByCustomerId);
 route.get(
   "/order/get-all/customer/:customerId",
   orderController.getAllOrderByCustomerId

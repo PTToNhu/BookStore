@@ -8,8 +8,6 @@ const getAllBooks = async (req, res) => {
     const cart = await Cart.find({ CustomerID: customerId });
     let bookIds = [];
     bookIds = cart.map((book) => book.BookID);
-    console.log(cart);
-    console.log("bookid:", bookIds);
     const books = await Cart.aggregate([
       {
         $match: {
@@ -70,7 +68,6 @@ const getAllBooks = async (req, res) => {
         },
       },
     ]);
-    console.log(books);
     return res.status(200).json(books);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -78,7 +75,14 @@ const getAllBooks = async (req, res) => {
 };
 const addItem = async (req, res) => {
   const { customerId, bookId, numOfBooks } = req.body;
-  console.log("customerId:", customerId, " bookId:", bookId, " numOfBooks:", numOfBooks)
+  console.log(
+    "customerId:",
+    customerId,
+    " bookId:",
+    bookId,
+    " numOfBooks:",
+    numOfBooks
+  );
   try {
     let existingItem = await Cart.findOne({
       CustomerID: customerId,
@@ -88,7 +92,7 @@ const addItem = async (req, res) => {
     if (existingItem) {
       await Cart.updateOne(
         { CustomerID: customerId, BookID: bookId },
-        { $set: { numOfBooks: existingItem.numOfBooks+numOfBooks } }
+        { $set: { numOfBooks: existingItem.numOfBooks + numOfBooks } }
       );
       return res.status(200).json({
         message: "Cập nhật số lượng trong giỏ hàng thành công",
