@@ -5,7 +5,7 @@
 
 .hover-scale {
     transition: transform 0.3s ease-in-out;
-    will-change: transform; /* Tối ưu hiệu suất */
+    will-change: transform;
 }
 
 .hover-scale:hover {

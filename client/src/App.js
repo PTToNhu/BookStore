@@ -16,7 +16,10 @@ function App() {
           <Route path="/customer/:userId" element={<HomeUser />} />
           <Route path="/customer/:userId/book/:bookId" element={<BookUser />} />
           <Route path="/customer/:userId/cart" element={<CartUser />} />
-          <Route path="/customer/:userId/book/search" element={<BookSearch/>}></Route>
+          <Route
+            path="/customer/:userId/book/search"
+            element={<BookSearch />}
+          ></Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

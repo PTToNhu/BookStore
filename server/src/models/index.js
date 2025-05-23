@@ -11,6 +11,7 @@ const Rating = require("./rating.model");
 const Order = require("./order.model");
 const Shipment = require("./shipment.model");
 const Author = require("./author.model");
+const Cart=require("./cart.model")
 module.exports = {
   Book,
   Customer,
@@ -25,4 +26,5 @@ module.exports = {
   Order,
   Shipment,
   Author,
+  Cart,
 };

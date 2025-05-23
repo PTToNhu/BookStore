@@ -9,27 +9,30 @@ const BookSearch = () => {
   const [error, setError] = useState("");
   const [searchParams] = useSearchParams();
   const searchText = searchParams.get("text");
-  const [search, setSearch]=useState("")
-  useEffect(()=>{
-    if(searchText){
-        setSearch(searchText)
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    if (searchText) {
+      setSearch(searchText);
     }
-  },[searchText])
-  console.log("search:", search)
+  }, [searchText]);
+  console.log("search:", search);
   useEffect(() => {
     if (!search) return;
     const fetchBooks = async () => {
       try {
         const encodedText = encodeURIComponent(search);
-        const response = await fetch(`http://localhost:3000/api/book/search?text=${encodedText}`);
+        const response = await fetch(
+          `http://localhost:3000/api/book/search?text=${encodedText}`
+        );
         if (!response.ok) {
           throw new Error("Không thể lấy dữ liệu sách!");
         }
         const data = await response.json();
         setBooks(data);
         data.forEach((book) => fetchPrice(book.BookType, book.BookID));
-      } catch (error) {
-        setError(error.message);
+      } catch (e) {
+        setError(e.message);
+        alert(error);
       }
     };
     fetchBooks();
@@ -65,9 +68,8 @@ const BookSearch = () => {
         if (!response.ok)
           throw new Error(`Không thể lấy giá cho sách ID ${BookID}`);
         const edition = await response.json();
-        let lastEdition = edition?.at(-1) ?? null;
-        console.log(lastEdition)
-
+        let lastEdition = edition[0] ?? null;
+        console.log("lastEdition", lastEdition);
         setBooks((prevBooks) =>
           prevBooks.map((book) =>
             book.BookID === BookID
@@ -75,7 +77,7 @@ const BookSearch = () => {
                   ...book,
                   Amount: lastEdition.Amount,
                   Price: lastEdition.Price,
-                  Volumn: lastEdition.Volumn,
+                  Volumn: null,
                 }
               : book
           )
@@ -97,8 +99,9 @@ const BookSearch = () => {
         }
         const data = await response.json();
         setAuthors(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (e) {
+        setError(e.message);
+        alert(error);
       }
     };
     fetchAuthors();
@@ -115,8 +118,9 @@ const BookSearch = () => {
         }
         const data = await response.json();
         setGenres(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (e) {
+        setError(e.message);
+        alert(error);
       }
     };
     fetchGenre();
@@ -187,11 +191,11 @@ const BookSearch = () => {
                     width="16"
                     height="16"
                     fill="currentColor"
-                    class="bi bi-chevron-down"
+                    className="bi bi-chevron-down"
                     viewBox="0 0 16 16"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"
                     />
                   </svg>
@@ -219,11 +223,11 @@ const BookSearch = () => {
                     width="16"
                     height="16"
                     fill="currentColor"
-                    class="bi bi-chevron-down"
+                    className="bi bi-chevron-down"
                     viewBox="0 0 16 16"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"
                     />
                   </svg>
@@ -241,10 +245,10 @@ const BookSearch = () => {
                   width="20"
                   height="20"
                   fill="currentColor"
-                  class="bi bi-funnel-fill"
+                  className="bi bi-funnel-fill"
                   viewBox="0 0 16 16"
                 >
-                  <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z" />
+                  <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />{" "}
                 </svg>
                 <div>Giá</div>
               </button>
@@ -262,7 +266,9 @@ const BookSearch = () => {
               <div className="card-body p-0" style={{ height: "100px" }}>
                 <p className="fw-bold text-danger mb-0">{book.Price}đ</p>
                 <p className="fw-semibold mb-0">{book.Title}</p>
-                <p className="fw-semibold mb-0">Tập {book.Volumn}</p>
+                <p className="fw-semibold mb-0">
+                  {book.Volumn && `Tập ${book.Volumn}`}
+                </p>
               </div>
             </div>
           </a>
