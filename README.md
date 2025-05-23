@@ -7,7 +7,7 @@ Vai trò: Người dùng
 ## 1.2. Dành cho khách hàng
 ### Trang chủ
 Trang chủ có các chức năng: 
-1. Hiển thị danh sách sản phẩm (**Query with a join and aggregate function**)
+1. Hiển thị danh sách sản phẩm (**Query with a join and aggregate function and subquery ($cond trong LastPublished)**)
 
    Trang chủ hiển thị các thông tin cơ bản của mỗi quyển sách bao gồm giá sách, tên bìa sách, tập (nếu có), và đánh giá của khách hàng (thể hiện qua số sao).
 
@@ -30,13 +30,13 @@ Trang chủ có các chức năng:
     - Ngược lại, trả về message: "Tìm thấy sách phù hợp" cùng các trường books (lưu trữ danh sách các quyển sách), và hasMore (true: sách vẫn chưa được load hết, người dùng có thể tiếp tục load, false: sách đã được load hết, thông báo "Không còn sách để tải thêm")
 
     - Nếu quá trình lấy dữ liệu từ database xảy ra lỗi thì trả ra lỗi tương ứng(status 500)
-2. Lọc sách theo danh mục sản phẩm, tác giả viết sách và giá (**Query with a composite condition**)
+2. Lọc sách theo danh mục sản phẩm, tác giả viết sách và giá (**Query with a composite condition and join**)
    
    Danh sách sách sẽ được reload mỗi khi có sự thay đổi về danh mục, tác giả, giá được chọn
    
    Thao tác với database: phát triển từ api phía trên, bổ sung thêm 2 trường earlyMatch và lateMatch, trong đó earlyMatch là điều kiện để lọc sách sách với ID tác giả và thể loại sách tương ứng trong quá trình tương tác với database, được match sau khi thực hiện join bảng is_written để giảm số lượng record trước khi join với các bảng khác, lateMatch là điều kiện dùng để lọc các sách nằm trong khoảng giá tương ứng sau khi đã join xong các bảng còn lại.
    
-3. Tìm kiếm sách theo tiêu đề (**Query with a single condition có thể chuyển thành subquery**)
+3. Tìm kiếm sách theo tiêu đề (**Query with a single condition**)
 
    Lấy ra thông tin các quyển sách với điều kiện là chuỗi tìm kiếm là chuỗi con của tiêu đề sách (không phân biệt chữ hoa/thường). Dựa trên BookType để quyết định fetch edition hay issue (tương tự như 2 chức năng trên).
 
